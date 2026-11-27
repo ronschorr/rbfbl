@@ -1,3 +1,4 @@
+
 name: Mirror RBFBL Live Tracker
 
 on:
@@ -16,27 +17,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download files
+      - name: Download live tracker
         run: |
-          for file in rr_live.htm standings.htm rbfbl_tracker.htm; do
-            curl --fail --location --retry 3 \
-              --connect-timeout 30 --max-time 120 \
-              "https://rbfbl.altervista.org/$file" \
-              -o "$file.tmp"
-
-            test -s "$file.tmp"
-            mv "$file.tmp" "$file"
-            git add "$file"
-          done
+          curl --fail --location --retry 3 \
+            --connect-timeout 30 --max-time 120 \
+            "https://rbfbl.altervista.org/rr_live.htm" \
+            -o rr_live.tmp
+          test -s rr_live.tmp
+          mv rr_live.tmp rr_live.htm
 
       - name: Commit and publish
         run: |
           git config user.name "RBFBL Mirror"
           git config user.email "actions@users.noreply.github.com"
+          git add rr_live.htm
 
           if git diff --cached --quiet; then
             echo "No changes detected"
           else
-            git commit -m "Update RBFBL files"
+            git commit -m "Update live tracker"
             git push
           fi
